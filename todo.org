@@ -1,0 +1,101 @@
+*  Essential features: 
+
+** TODO figure out how to install minor mode in emacs
+** TODO create system to recognize links to a bible node.
+*** what does this look like?
+*** how do you actually link to a file in a way which is org-roam compatible but allows for linking to bible verses in an easy way?
+*** [[file:path/to/file]]] is the current syntax. can we extend this to work like bible:Gen 1:1 ?
+*** Are there other ways to do this?
+**** #+ ChatGPT Suggestion
+#+ BEGIN_QUOTE
+
+Creating a custom link type in Org-mode is possible through the use of Emacs Lisp. You define two main components for a custom link type: the link "follow" function and the link "export" function.
+Here's a basic example where we create a custom link type `bible:` which will open a predefined URL for the Bible passage mentioned in the link. In this example, we'll use Bible Gateway as the website for looking up Bible passages.
+
+***** Link Follow Function: This function is responsible for what happens when you follow a custom link.
+
+```emacs-lisp
+(defun org-bible-follow (path)
+  "Follow a Bible link."
+  (browse-url (format "https://www.biblegateway.com/passage/?search=%s" path)))
+```
+
+***** **Link Export Function: This function is responsible for how the link will be exported to other formats like HTML.
+
+```emacs-lisp
+(defun org-bible-export (path desc format)
+  "Export a Bible link."
+  (cond
+   ((eq format 'html) (format "<a href=\"https://www.biblegateway.com/passage/?search=%s\">%s</a>" path (or desc path)))
+   ((eq format 'latex) (format "\\href{https://www.biblegateway.com/passage/?search=%s}{%s}" path (or desc path)))
+   ((eq format 'ascii) (format "%s" (or desc path)))
+   (t path)))
+```
+
+***** **Register the Custom Link Type**: This will register `bible` as a new link type and assign the follow and export functions.
+
+```emacs-lisp
+(org-link-set-parameters "bible"
+                         :follow #'org-bible-follow
+                         :export #'org-bible-export)
+```
+
+***** **Putting It All Together**: You can add all of these code snippets to your Emacs configuration file (e.g., `~/.emacs` or `~/.emacs.d/init.el`).
+
+```emacs-lisp
+(defun org-bible-follow (path)
+  "Follow a Bible link."
+  (browse-url (format "https://www.biblegateway.com/passage/?search=%s" path)))
+
+(defun org-bible-export (path desc format)
+  "Export a Bible link."
+  (cond
+   ((eq format 'html) (format "<a href=\"https://www.biblegateway.com/passage/?search=%s\">%s</a>" path (or desc path)))
+   ((eq format 'latex) (format "\\href{https://www.biblegateway.com/passage/?search=%s}{%s}" path (or desc path)))
+   ((eq format 'ascii) (format "%s" (or desc path)))
+   (t path)))
+
+(org-link-set-parameters "bible"
+                         :follow #'org-bible-follow
+                         :export #'org-bible-export)
+```
+
+Once you've added these to your Emacs configuration, you can now use links like `[[bible:Genesis 1:1][Genesis 1:1]]` in your Org files. Following the link will open Bible Gateway with the specified passage, and exporting the document will create an appropriate link in the output format.
+
+Remember to evaluate the code or restart Emacs to apply the changes.
+
+
+#+ END QUOTE
+
+
+
+** TODO create system for creating proxy files for org-roam.
+*** I think this would look like a "dabar" folder inside of the roam folder.
+*** Notes would be stored in folders based on chapter.
+*** Linking would be enabled for a full chapter, or also for chapter and verse
+** TODO org-roam compatibility
+*** create a system which dynamically inserts the text of the verse or chapter into the proxy file while you are reading it and while dabar minor mode is enabled.
+*** this enables backlinking and other features
+
+
+
+
+* Usability Improvements
+
+** DONE Create Navigation between chapters 
+
+* Future Features Wish List
+
+** TODO USFX support to enable multiple translations
+** TODO Create user settings for translations 
+** TODO Concordance Support
+** TODO Dictionary Support
+** TODO Annotations Support
+** TODO Reading Plans Support
+** TODO Cross References
+** TODO Parallel Reading + Multiple Translations.
+** TODO Hebrew Support
+** TODO Support for Commentaries
+** TODO Random Verse
+** TODO Highlighting Support -- How would this work?? 
+** TODO Automatic Linking
