@@ -125,8 +125,45 @@
 	(goto-char (point-min))
 	(set (make-local-variable 'current-book) target-book)
 	(set (make-local-variable 'current-chapter) target-chapter)
+	(dabar-mode 1)
         (setq buffer-read-only t))
     (message "Chapter not found"))))
+
+
+
+(defvar bible-buffer-name "*Bible Reading*")
+
+(defun get_chapter (target-book target-chapter xml)
+  (let ((root (car xml))
+        (chapter-contents nil)
+        (found nil))
+    (dolist (biblebook (xml-get-children root 'BIBLEBOOK) (and found chapter-contents))
+      (let ((bname (cdr (assq 'bname (xml-node-attributes biblebook)))))
+        (when (and (not found) (string= bname target-book))
+          (dolist (chapter (xml-get-children biblebook 'CHAPTER))
+            (let ((cnumber (cdr (assq 'cnumber (xml-node-attributes chapter)))))
+              (when (and (not found) (string= cnumber target-chapter))
+                (setq chapter-contents (xml-node-children chapter))
+                (setq found t)))))))
+    (if found
+        (let ((buf (get-buffer-create bible-buffer-name))
+              (formatted-chapter (format-chapter chapter-contents)))
+          (switch-to-buffer buf)
+          (setq buffer-read-only nil)
+          (erase-buffer)
+          (insert (format "%s %s: \n\n" target-book target-chapter))
+          (insert formatted-chapter)
+          (goto-char (point-min))
+          (set (make-local-variable 'current-book) target-book)
+          (set (make-local-variable 'current-chapter) target-chapter)
+          (dabar-mode 1)
+          (setq buffer-read-only t))
+      (message "Chapter not found"))))
+
+
+
+
+
 
 ;; (get_chapter "Genesis" "1" parsed-xml)
 ;; cant get this to work
@@ -165,6 +202,43 @@
     result))
 ;; Keybinding to "turn the page"
 (define-key dabar-mode-keymap (kbd "C-c n") 'get-next-chapter)
+
+
+(defun get-previous-chapter ()
+  (interactive)
+  ;; Assuming `current-book` and `current-chapter` are buffer-local variables in the chapter display buffer
+  (let ((prev-item (get-previous-chapter-item current-chapter book-and-chapters))) ;; Assume book-and-chapters is defined and accessible
+    (if prev-item
+        (progn
+          ;; Fetch and display the previous chapter
+          (get_chapter (car prev-item) (cdr prev-item) parsed-xml) ;; Assume parsed-xml is defined and accessible
+          ;; Update buffer-local variables
+          (set (make-local-variable 'current-book) (car prev-item))
+          (set (make-local-variable 'current-chapter) (cdr prev-item)))
+      (message "You are at the first chapter"))))
+
+(defun get-previous-chapter-item (current-item book-info-alist)
+  (let ((found nil)
+        (last-item nil)
+        (last-book nil))
+    (catch 'done
+      (dolist (pair book-info-alist)
+        (let ((current-book (car pair)))
+          (dolist (item (cdr pair))
+            (when (equal current-item item)
+              (if last-item
+                  (progn
+                    (setq found t)
+                    (throw 'done (cons last-book last-item)))
+                (throw 'done nil)))
+            (setq last-item item)
+            (setq last-book current-book)))))
+    (if (not found)
+        (error "Item not found in list"))
+    (cons last-book last-item)))
+
+;; Keybinding to go to the previous chapter
+(define-key dabar-mode-keymap (kbd "C-c p") 'get-previous-chapter)
 
 
 
