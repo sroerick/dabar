@@ -281,7 +281,7 @@
 (defun org-bible-follow (path)
   "Follow a Bible link."
   ;; Parse the passage to get the book and chapter
-  (if (string-match "\\([A-Za-z ]+\\) \\([0-9]+\\)" path)
+  (if (string-match "\\([A-Za-z ]+\\) \\([0-9]+\\)\\(?::\\([0-9]+\\(?:-[0-9]+\\)?\\)?\\)?" path)
       (let* ((book (match-string 1 path))
              (chapter (match-string 2 path))
              ;; Construct the org-roam file path
@@ -291,9 +291,13 @@
             (find-file roam-path)
           ;; If the org-roam file doesn't exist, create and open it
           (find-file roam-path)
-          (insert (format "#+title: %s %s\n\n" book chapter))))
+          (insert (format "#+title: %s %s\n" book chapter))
+          ;; Add the ID to make it an Org-roam node
+          (org-id-get-create)
+          (insert "\n")))
     ;; If parsing fails, revert to the original behavior
     (browse-url (format "https://www.biblegateway.com/passage/?search=%s" path))))
+
 
 
 (defun org-bible-export (path desc format)
