@@ -1,6 +1,6 @@
 *  Essential features: 
 
-** TODO figure out how to install minor mode in emacs
+** DONE figure out how to install minor mode in emacs
 ** TODO create system to recognize links to a bible node.
 *** what does this look like?
 *** how do you actually link to a file in a way which is org-roam compatible but allows for linking to bible verses in an easy way?
@@ -20,7 +20,7 @@ Here's a basic example where we create a custom link type `bible:` which will op
   (browse-url (format "https://www.biblegateway.com/passage/?search=%s" path)))
 ```
 
-***** **Link Export Function: This function is responsible for how the link will be exported to other formats like HTML.
+***** **Link Export Function**: This function is responsible for how the link will be exported to other formats like HTML.
 
 ```emacs-lisp
 (defun org-bible-export (path desc format)

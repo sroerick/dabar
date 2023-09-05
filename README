@@ -1,0 +1,9 @@
+this is my config in my .emacs to install this:
+
+
+```
+(add-to-list 'load-path "~/dev/dabar/")
+(require 'dabar-mode)
+
+(add-hook 'find-file-hook 'activate-dabar-mode-in-directory)
+```
