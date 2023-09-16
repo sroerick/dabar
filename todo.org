@@ -5,11 +5,10 @@
 
 ** DONE create system for creating proxy files for org
 ** TODO org-roam compatibility
-*** create a system which dynamically inserts the text of the verse or chapter into the proxy file while you are reading it and while dabar minor mode is enabled.
-*** this enables backlinking and other features
-
-
-
+*** DONE create a system which dynamically inserts the text of the verse or chapter into the proxy file while you are reading it and while dabar minor mode is enabled.
+*** TODO enable backlinking
+**** TODO The new plan here is to use the REFs system in order to track these
+**** TODO create org-roam link
 
 * Usability Improvements
 ** DONE Create Navigation between chapters
