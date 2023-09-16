@@ -12,14 +12,26 @@
 
 
 * Usability Improvements
-
-** DONE Create Navigation between chapters 
+** DONE Create Navigation between chapters
+** TODO update navigation system to work with org-roam
+*** add a check to determine if a dabar node already exists for that chapter
+**** if yes, then open dabar node
+**** if no, then open read only buffer
+** TODO function to create dabar node from the read only buffer
 
 * Future Features Wish List
 
+** TODO Allow Quoting of Scripture
+*** insert link to scripture plus full text of quote described
+*** create mode to collapse all quotes or expand all quotes
+**** Not sure how this would be done 
 ** TODO USFX support to enable multiple translations
 ** TODO Create user settings for translations 
 ** TODO Concordance Support
+*** TODO Look up word by concordance number
+*** TODO search for word in full text
+**** TODO show all instances of word, show all strongs references 
+*** TODO click word, open concordance (requires USFX)
 ** TODO Dictionary Support
 ** TODO Annotations Support
 ** TODO Reading Plans Support
@@ -27,6 +39,7 @@
 ** TODO Parallel Reading + Multiple Translations.
 ** TODO Hebrew Support
 ** TODO Support for Commentaries
+*** TODO Should commentaries simply be in dabar-roam format? 
 ** TODO Random Verse
 ** TODO Highlighting Support -- How would this work?? 
 ** TODO Automatic Linking
