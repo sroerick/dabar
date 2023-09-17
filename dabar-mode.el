@@ -1,6 +1,6 @@
 ﻿
 (require 'cl-lib)
-
+(load "abbreviations")
 ;; set variable
 (with-temp-buffer
   (insert-file-contents "~/dev/dabar/bible_web.xml")
@@ -350,16 +350,29 @@ Returns a cons cell (BOOK . CHAPTER) or nil if not found."
             (when (derived-mode-p 'org-mode)
               (load-bible-chapter))))
 
+(defun find-book-full-form (abbr)
+  "Find the full form of a Bible book given its abbreviation."
+  (catch 'found
+    (dolist (entry bible-alist)
+      (when (member abbr entry)
+        (throw 'found (car entry))))))
+
+
 
 (defun insert-bible-link ()
   "Prompt the user for a Bible verse and insert a formatted link."
   (interactive)
   ;; Prompt the user for the Bible verse.
   (let* ((verse (read-string "Enter Bible verse (e.g., Genesis 1:1): "))
-         ;; Create the link target by removing spaces, colons, and anything after the colon.
-         (link-target (concat "bible:" (replace-regexp-in-string " \\|:.*" "" verse))))
-    ;; Insert the link.
-    (insert (format "[[%s][%s]]" link-target verse))))
+         (book-abbr (car (split-string verse " ")))
+         (full-form (find-book-full-form book-abbr)))
+    (unless full-form
+      (error "Invalid book abbreviation"))
+    (let ((link-target (concat "bible:" (replace-regexp-in-string " \\|:.*" "" full-form))))
+      ;; Insert the link.
+      (insert (format "[[%s][%s]]" link-target verse)))))
+
+(defun get-chapter-prompt)
 
 
 ;; You can bind the function to a key combination if needed.
