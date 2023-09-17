@@ -1,4 +1,4 @@
-(defvar bible-abbrevs
+(defvar bible-alist
   '(("Genesis" "Gen." "Gen" "Ge." "Ge")
     ("Exodus" "Exo." "Ex." "Exo" "Ex")
     ("Leviticus" "Lev." "Lev" "Le." "Le")

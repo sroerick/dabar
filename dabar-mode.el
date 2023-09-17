@@ -357,22 +357,39 @@ Returns a cons cell (BOOK . CHAPTER) or nil if not found."
       (when (member abbr entry)
         (throw 'found (car entry))))))
 
+(defun prompt-for-verse ()
+  "Prompt the user for a Bible verse and return the full book name and verse details."
+  (let* ((verse (read-string "Enter Bible verse (e.g., Genesis 1:1): "))
+         (book-abbr (car (split-string verse " ")))
+         (full-form (find-book-full-form book-abbr))
+         (remainder (mapconcat 'identity (cdr (split-string verse " ")) " ")))
+    (unless full-form
+      (error "Invalid book abbreviation"))
+    (concat full-form " " remainder)))
+
 
 
 (defun insert-bible-link ()
   "Prompt the user for a Bible verse and insert a formatted link."
   (interactive)
-  ;; Prompt the user for the Bible verse.
-  (let* ((verse (read-string "Enter Bible verse (e.g., Genesis 1:1): "))
-         (book-abbr (car (split-string verse " ")))
-         (full-form (find-book-full-form book-abbr)))
-    (unless full-form
-      (error "Invalid book abbreviation"))
-    (let ((link-target (concat "bible:" (replace-regexp-in-string " \\|:.*" "" full-form))))
-      ;; Insert the link.
-      (insert (format "[[%s][%s]]" link-target verse)))))
+  (let* ((verse-details (prompt-for-verse))
+         (full-form (car verse-details))
+         (verse (cadr verse-details))
+         (link-target (concat "bible:" (replace-regexp-in-string " \\|:.*" "" full-form))))
+    (insert (format "[[%s][%s]]" link-target verse))))
 
-(defun get-chapter-prompt)
+
+(defun get-chapter-prompt ()
+  "Prompt the user for a Bible verse and open the corresponding chapter in a buffer."
+  (interactive)
+  (let* ((verse-details (prompt-for-verse))
+         (full-form (car verse-details))
+         (verse (cadr verse-details))
+         (chapter (car (split-string (cadr (split-string verse " ")) ":")))
+         (target-chapter (if (string-match-p "^[0-9]+$" chapter) ; Ensure it's a number
+                             (string-to-number chapter)
+                           (error "Invalid chapter format"))))
+    (get-chapter full-form target-chapter)))
 
 
 ;; You can bind the function to a key combination if needed.
