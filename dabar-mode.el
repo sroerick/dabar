@@ -233,27 +233,6 @@ Returns a cons cell (BOOK . CHAPTER) or nil if not found."
 
 
 
-(defun org-bible-follow (path)
-  "Follow a Bible link."
-  ;; Parse the passage to get the book and chapter
-  (if (string-match "\\([A-Za-z ]+\\) \\([0-9]+\\)\\(?::\\([0-9]+\\(?:-[0-9]+\\)?\\)?\\)?" path)
-      (let* ((book (match-string 1 path))
-             (chapter (match-string 2 path))
-             ;; Construct the org-roam file path
-             (roam-path (format "%s/Dabar/%s/%s.org" org-roam-directory book chapter)))
-	(if (file-exists-p roam-path)
-	    ;; If the org-roam file exists, open it
-	    (find-file roam-path)
-	  ;; If the org-roam file doesn't exist, create and open it
-	  (progn
-	    (find-file roam-path)
-	    (insert (format "#+title: %s %s\n" book chapter))
-	    ;; Add the ID to make it an Org-roam node
-	    (org-id-get-create)
-	    (insert "\n"))))
-    ;; If parsing fails, revert to the original behavior
-          (message "Chapter not found")))
-
 
 
 ;; find verse
@@ -280,6 +259,32 @@ Returns a cons cell (BOOK . CHAPTER) or nil if not found."
 ;; (get_verse "Genesis" "1" "1" parsed-xml)
 
 
+
+(defun org-bible-follow (path)
+  "Follow a Bible link."
+  (message "Received path: %s" path)
+  ;; Parse the passage from the custom URI scheme
+  (if (string-match "\\([A-Za-z ]+\\)\\([0-9]+\\)\\(?::\\([0-9]+\\)?\\)?" path)
+      (let* ((book (match-string 1 path))
+             (chapter (match-string 2 path))
+             ;; Construct the reference for org-roam
+             (reference (concat "bible:" (replace-regexp-in-string " \\|:.*" "" path)))
+             ;; Construct the org-roam file path based on the book and chapter
+             (roam-path (format "%s/Dabar/%s/%s.org" org-roam-directory book chapter)))
+        (if (file-exists-p roam-path)
+            ;; If the org-roam file exists, open it
+            (find-file roam-path)
+          ;; If the org-roam file doesn't exist, create and open it
+          (progn
+            (find-file roam-path)
+	    (org-id-get-create)
+            (org-roam-ref-add reference)
+
+            (insert "\n"))))
+      ;; If parsing fails, show a message
+      (message "Chapter not found")))
+
+
 (defun org-bible-export (path desc format)
   "Export a Bible link."
   (cond
@@ -292,6 +297,7 @@ Returns a cons cell (BOOK . CHAPTER) or nil if not found."
 (org-link-set-parameters "bible"
                          :follow #'org-bible-follow
                          :export #'org-bible-export)
+
 
 
 (defun insert-bible-text ()
@@ -345,6 +351,19 @@ Returns a cons cell (BOOK . CHAPTER) or nil if not found."
               (load-bible-chapter))))
 
 
+(defun insert-bible-link ()
+  "Prompt the user for a Bible verse and insert a formatted link."
+  (interactive)
+  ;; Prompt the user for the Bible verse.
+  (let* ((verse (read-string "Enter Bible verse (e.g., Genesis 1:1): "))
+         ;; Create the link target by removing spaces, colons, and anything after the colon.
+         (link-target (concat "bible:" (replace-regexp-in-string " \\|:.*" "" verse))))
+    ;; Insert the link.
+    (insert (format "[[%s][%s]]" link-target verse))))
+
+
+;; You can bind the function to a key combination if needed.
+(global-set-key (kbd "C-c b b") 'insert-bible-link)
 
 
 
