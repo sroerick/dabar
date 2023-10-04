@@ -125,6 +125,8 @@
       (setq chapter-contents (format-chapter chapter-contents)))
     chapter-contents))
 
+(find-formatted-chapter-contents "1 Corinthians" "1")
+
 (defun open-chapter-in-dabar-buffer (target-book target-chapter contents)
   "Open the provided chapter contents in a Dabar buffer."
   (if contents
@@ -141,6 +143,7 @@
         (dabar-mode 1)
         (setq buffer-read-only t))
     (message "Chapter not found")))
+
 
 (defun get_chapter (target-book target-chapter)
   "This inputs a book and chapter and loads it into a buffer for browsing."
@@ -229,9 +232,12 @@
   "Extract Bible metadata from the given FILENAME.
 Returns a cons cell (BOOK . CHAPTER) or nil if not found."
   (when (and filename (string-match "/Dabar/\\([^/]+\\)/\\([^/]+\\)\\.org$" filename))
-    (cons (match-string 1 filename) (match-string 2 filename))))
-
-
+    (let ((book (match-string 1 filename))
+          (chapter (match-string 2 filename)))
+      ;; If the book starts with a "1", insert a space after it
+      (when (string-prefix-p "1" book)
+        (setq book (replace-regexp-in-string "^1" "1 " book)))
+      (cons book chapter))))
 
 
 
@@ -259,12 +265,11 @@ Returns a cons cell (BOOK . CHAPTER) or nil if not found."
 ;; (get_verse "Genesis" "1" "1" parsed-xml)
 
 
-
 (defun org-bible-follow (path)
   "Follow a Bible link."
   (message "Received path: %s" path)
   ;; Parse the passage from the custom URI scheme
-  (if (string-match "\\([A-Za-z ]+\\)\\([0-9]+\\)\\(?::\\([0-9]+\\)?\\)?" path)
+  (if (string-match "\\([0-9]*[A-Za-z]+\\)\\([0-9]+\\)\\(?::\\([0-9]+\\)?\\)?" path)
       (let* ((book (match-string 1 path))
              (chapter (match-string 2 path))
              ;; Construct the reference for org-roam
@@ -279,11 +284,11 @@ Returns a cons cell (BOOK . CHAPTER) or nil if not found."
             (find-file roam-path)
 	    (org-id-get-create)
             (org-roam-ref-add reference)
-
             (insert "\n"))))
+    
       ;; If parsing fails, show a message
       (message "Chapter not found")))
-
+2
 
 (defun org-bible-export (path desc format)
   "Export a Bible link."
@@ -357,15 +362,24 @@ Returns a cons cell (BOOK . CHAPTER) or nil if not found."
       (when (member abbr entry)
         (throw 'found (car entry))))))
 
+
 (defun prompt-for-verse ()
   "Prompt the user for a Bible verse and return the full book name and verse details."
   (let* ((verse (read-string "Enter Bible verse (e.g., Genesis 1:1): "))
-         (book-abbr (car (split-string verse " ")))
+         ;; Adjust the splitting to account for books starting with numbers
+         (split-verse (split-string verse " "))
+         (book-abbr (if (string-match-p "^[0-9]$" (car split-verse))
+                        (concat (car split-verse) " " (cadr split-verse))
+                      (car split-verse)))
          (full-form (find-book-full-form book-abbr))
-         (remainder (mapconcat 'identity (cdr (split-string verse " ")) " ")))
+         (chapter-and-verse (if (string-match-p "^[0-9]$" (car split-verse))
+                                (caddr split-verse)
+                              (cadr split-verse)))
+         (chapter (car (split-string chapter-and-verse ":")))
+         (verse-number (string-to-number (cadr (split-string chapter-and-verse ":")))))
     (unless full-form
       (error "Invalid book abbreviation"))
-    (concat full-form " " remainder)))
+    (list (concat full-form " " chapter) verse-number)))
 
 
 
@@ -373,23 +387,26 @@ Returns a cons cell (BOOK . CHAPTER) or nil if not found."
   "Prompt the user for a Bible verse and insert a formatted link."
   (interactive)
   (let* ((verse-details (prompt-for-verse))
-         (full-form (car verse-details))
-         (verse (cadr verse-details))
-         (link-target (concat "bible:" (replace-regexp-in-string " \\|:.*" "" full-form))))
-    (insert (format "[[%s][%s]]" link-target verse))))
+         (book-and-chapter (car verse-details))
+         (verse-number (cadr verse-details))
+         (full-verse (format "%s:%d" book-and-chapter verse-number))
+         (link-target (concat "bible:" (replace-regexp-in-string " \\|:.*" "" book-and-chapter))))
+    (insert (format "[[%s][%s]]" link-target full-verse))))
+
 
 
 (defun get-chapter-prompt ()
   "Prompt the user for a Bible verse and open the corresponding chapter in a buffer."
   (interactive)
   (let* ((verse-details (prompt-for-verse))
-         (full-form (car verse-details))
-         (verse (cadr verse-details))
-         (chapter (car (split-string (cadr (split-string verse " ")) ":")))
-         (target-chapter (if (string-match-p "^[0-9]+$" chapter) ; Ensure it's a number
-                             (string-to-number chapter)
-                           (error "Invalid chapter format"))))
-    (get-chapter full-form target-chapter)))
+         (book-and-chapter (car verse-details)) ; e.g., "Genesis 1"
+         (verse-number (cadr verse-details))   ; e.g., 1
+         (chapter (string-to-number (cadr (split-string book-and-chapter " "))))
+         (book (car (split-string book-and-chapter " "))))
+    (unless chapter
+      (error "Invalid chapter format"))
+    (get-chapter book chapter)))
+
 
 
 ;; You can bind the function to a key combination if needed.

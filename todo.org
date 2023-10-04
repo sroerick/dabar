@@ -1,22 +1,30 @@
 *  Essential features: 
 
-** DONE figure out how to install minor mode in emacs
-** DONE create system to recognize links to a bible node.
-
-** DONE create system for creating proxy files for org
 ** TODO org-roam compatibility
-*** DONE create a system which dynamically inserts the text of the verse or chapter into the proxy file while you are reading it and while dabar minor mode is enabled.
 *** TODO enable backlinking
 **** TODO The new plan here is to use the REFs system in order to track these
 **** TODO create org-roam link
 
+*** DONE create a system which dynamically inserts the text of the verse or chapter into the proxy file while you are reading it and while dabar minor mode is enabled.
+** DONE figure out how to install minor mode in emacs
+** DONE create system to recognize links to a bible node.
+** DONE create system for creating proxy files for org
+
 * Usability Improvements
-** DONE Create Navigation between chapters
 ** TODO update navigation system to work with org-roam
 *** add a check to determine if a dabar node already exists for that chapter
 **** if yes, then open dabar node
 **** if no, then open read only buffer
 ** TODO function to create dabar node from the read only buffer
+** TODO Configure DABAR todo as a refile directory
+[2023-09-16 Sat 22:53]
+** TODO modify bible verse input regex to allow for titles like 2 Thess etc...
+[2023-09-17 Sun 01:32]
+** TODO add TODO qualifiers to scripture SEED / Sapling / Tree (i hate these metaphors
+[2023-09-17 Sun 01:48]
+** TODO create logic to create directory if directory doesn't exist
+[2023-09-17 Sun 02:23]
+
 
 * Future Features Wish List
 

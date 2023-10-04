@@ -1,0 +1,23 @@
+#    -*- mode: org -*-
+
+
+Archived entries from file /Users/roericksweeney/dev/dabar/todo.org
+
+
+* DONE Create Navigation between chapters
+:PROPERTIES:
+:ARCHIVE_TIME: 2023-09-17 Sun 02:53
+:ARCHIVE_FILE: ~/dev/dabar/todo.org
+:ARCHIVE_OLPATH: Usability Improvements
+:ARCHIVE_CATEGORY: todo
+:ARCHIVE_TODO: DONE
+:END:
+
+* DONE create a system which dynamically inserts the text of the verse or chapter into the proxy file while you are reading it and while dabar minor mode is enabled.
+:PROPERTIES:
+:ARCHIVE_TIME: 2023-09-17 Sun 02:53
+:ARCHIVE_FILE: ~/dev/dabar/todo.org
+:ARCHIVE_OLPATH: Essential features:/org-roam compatibility
+:ARCHIVE_CATEGORY: todo
+:ARCHIVE_TODO: DONE
+:END:
